@@ -1,0 +1,9 @@
+# OS / Editor junk
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Helm dependencies
+charts/*/charts/
+charts/*/Chart.lock

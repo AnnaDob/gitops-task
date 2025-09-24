@@ -1,0 +1,55 @@
+grafana:
+  defaultDashboardsEnabled: false
+
+  service:
+    type: NodePort
+    nodePort: 30000
+
+  dashboardsConfigMaps:
+    custom-dashboards: "custom-dashboards"
+
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: VictoriaMetrics
+        type: prometheus
+        url: http://vmsingle-monitoring-victoria-metrics-k8s-stack.monitoring.svc.cluster.local:8428
+        access: proxy
+        isDefault: true
+
+vmsingle:
+  enabled: true
+  service:
+    type: ClusterIP
+    port: 8428
+
+vmagent:
+  enabled: true
+  spec:
+    replicas: 1
+    scrapeInterval: 15s
+    selectAllByDefault: false
+    externalLabels:
+      cluster: "minikube"
+    inlineScrapeConfig: |
+      - job_name: 'spam2000'
+        metrics_path: /metrics
+        static_configs:
+          - targets: ['spam2000.default.svc.cluster.local:3000']
+
+defaultDashboards:
+  all: false
+  nodeExporterFull: false
+
+crds:
+  enabled: true
+
+admissionWebhooks:
+  certManager:
+    enabled: false

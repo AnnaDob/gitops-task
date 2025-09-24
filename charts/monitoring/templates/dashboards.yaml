@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: custom-dashboards
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  cluster-dashboard.json: |
+    {
+      "title": "Kubernetes Cluster Overview",
+      "panels": [
+        {
+          "type": "gauge",
+          "title": "CPU Usage %",
+          "targets": [
+            { "expr": "100 * sum(rate(container_cpu_usage_seconds_total[5m])) / sum(machine_cpu_cores)" }
+          ]
+        },
+        {
+          "type": "gauge",
+          "title": "Memory Usage %",
+          "targets": [
+            { "expr": "100 * sum(container_memory_usage_bytes) / sum(machine_memory_bytes)" }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Pod Restarts",
+          "targets": [
+            { "expr": "increase(kube_pod_container_status_restarts_total[1h])" }
+          ]
+        },
+        {
+          "type": "bargauge",
+          "title": "Top 5 Pods by CPU",
+          "targets": [
+            { "expr": "topk(5, sum by(pod) (rate(container_cpu_usage_seconds_total[5m])))" }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Cluster Network Traffic",
+          "targets": [
+            { "expr": "sum(rate(container_network_receive_bytes_total[5m]))", "legendFormat": "Receive" },
+            { "expr": "sum(rate(container_network_transmit_bytes_total[5m]))", "legendFormat": "Transmit" }
+          ]
+        }
+      ],
+      "schemaVersion": 30,
+      "version": 3
+    }
+
+  spam2000-dashboard.json: |
+    {
+      "title": "Spam2000 Application Overview",
+      "panels": [
+        {
+          "type": "stat",
+          "title": "Total Random Samples",
+          "targets": [
+            { "expr": "count(random_gauge_1)" }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Random Gauge Over Time",
+          "targets": [
+            { "expr": "avg(random_gauge_1)" }
+          ]
+        },
+        {
+          "type": "bargauge",
+          "title": "Top Countries",
+          "targets": [
+            { "expr": "topk(5, count by (country) (random_gauge_1))" }
+          ]
+        },
+        {
+          "type": "bargauge",
+          "title": "Top Products",
+          "targets": [
+            { "expr": "topk(5, count by (product) (random_gauge_1))" }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "By Platform",
+          "targets": [
+            { "expr": "count by (platform) (random_gauge_1)" }
+          ]
+        }
+      ],
+      "schemaVersion": 30,
+      "version": 2
+    }
